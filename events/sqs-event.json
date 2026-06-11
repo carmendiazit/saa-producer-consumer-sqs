@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "test-message-id-001",
+      "receiptHandle": "test-receipt-handle",
+      "body": "{\"coder_id\": \"123\", \"spot_id\": \"321\", \"timestamp\": 1700000000000}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1700000000000",
+        "SenderId": "test-sender",
+        "ApproximateFirstReceiveTimestamp": "1700000000001"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "test-md5",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-1:123456789012:MyMessageQueue",
+      "awsRegion": "us-east-1"
+    }
+  ]
+}

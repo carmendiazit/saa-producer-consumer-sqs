@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  saa-producer-consumer-sqs
+  SimuLearn - Producer → SQS → Consumer → DynamoDB
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.13
+    Architectures:
+      - x86_64
+
+Resources:
+
+  # ─── SQS Queue ───────────────────────────────────────────────
+  MyMessageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: MyMessageQueue
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt MyMessageQueueDLQ.Arn
+        maxReceiveCount: 3
+
+  MyMessageQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: MyMessageQueueDLQ
+
+  # ─── DynamoDB Table ──────────────────────────────────────────
+  CheckinDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: checkinData
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: coderId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: coderId
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+
+  # ─── Producer Lambda ─────────────────────────────────────────
+  ProducerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: ProducerFunction
+      CodeUri: src/producer/
+      Handler: app.lambda_handler
+      Description: Publishes a check-in message to SQS
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref MyMessageQueue
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt MyMessageQueue.QueueName
+
+  # ─── Consumer Lambda ─────────────────────────────────────────
+  ConsumerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: ConsumerFunction
+      CodeUri: src/consumer/
+      Handler: app.lambda_handler
+      Description: Consumes messages from SQS and writes to DynamoDB
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref CheckinDataTable
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt MyMessageQueue.Arn
+            BatchSize: 10
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+
+Outputs:
+  ProducerFunctionArn:
+    Description: ARN de la función Producer
+    Value: !GetAtt ProducerFunction.Arn
+
+  ConsumerFunctionArn:
+    Description: ARN de la función Consumer
+    Value: !GetAtt ConsumerFunction.Arn
+
+  QueueUrl:
+    Description: URL de la cola SQS
+    Value: !Ref MyMessageQueue
+
+  QueueArn:
+    Description: ARN de la cola SQS
+    Value: !GetAtt MyMessageQueue.Arn
+
+  DLQUrl:
+    Description: URL de la Dead Letter Queue
+    Value: !Ref MyMessageQueueDLQ
+
+  CheckinTableName:
+    Description: Nombre de la tabla DynamoDB
+    Value: !Ref CheckinDataTable

@@ -1,0 +1,21 @@
+# SAM build artifacts
+.aws-sam/
+
+# Credenciales y configuración local
+samconfig.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+
+# Response files de pruebas
+response.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# notas
+notas.txt
