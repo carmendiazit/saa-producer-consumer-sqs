@@ -1,9 +1,6 @@
 # SAM build artifacts
 .aws-sam/
 
-# Credenciales y configuración local
-samconfig.toml
-
 # Python
 __pycache__/
 *.py[cod]
