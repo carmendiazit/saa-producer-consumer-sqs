@@ -1,56 +1,12 @@
-# Producer-Consumer Pattern using AWS Lambda, SQS and DynamoDB with SAM
+# saa-producer-consumer-sqs
 
 Aplicación SAM - SimuLearn Lab  
-**Patrón:** Producer Lambda → SQS → Consumer Lambda → DynamoDB
-
-## Prerrequisitos
-
-Para ejecutar este proyecto necesitás lo siguiente:
-
-**1. Cuenta de AWS con capa gratuita (AWS Free Tier)**  
-Los servicios utilizados en este proyecto (Lambda, SQS y DynamoDB) forman parte de la capa gratuita permanente de AWS (*Always Free*), lo que significa que no tienen fecha de vencimiento y están disponibles para todas las cuentas:
-- **AWS Lambda**: 1 millón de invocaciones y 400.000 GB-segundos por mes
-- **Amazon SQS**: 1 millón de solicitudes por mes
-- **Amazon DynamoDB**: 25 GB de almacenamiento y 200 millones de solicitudes por mes
-
-Este lab no genera costo si se mantiene dentro de esos límites. Se recomienda eliminar el stack al finalizar con `sam delete`.  
-Más información: https://aws.amazon.com/free/
-
-**2. Credenciales de AWS configuradas**  
-El AWS CLI debe tener un perfil configurado con las credenciales de tu cuenta (Access Key ID y Secret Access Key) y la región por defecto. Podés verificarlo con:
-```bash
-aws configure list
-aws sts get-caller-identity
-```
-Más información: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
-
-**3. Python 3.13**  
-Requerido localmente para el build de SAM. Descarga: https://www.python.org/downloads/
-
-**4. AWS CLI**  
-Interfaz de línea de comandos para interactuar con los servicios AWS.  
-Instalación: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-
-**5. AWS SAM CLI**  
-Herramienta para construir y desplegar aplicaciones serverless.  
-Instalación: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html
-
----
+**Patrón:** Producer Lambda | SQS | Consumer Lambda | DynamoDB
 
 ## Arquitectura
 
-```
-[ProducerFunction]
-       │
-       ▼  MessageBody (JSON)
-[MyMessageQueue]  ──(maxReceiveCount=3)──► [MyMessageQueueDLQ]
-       │
-       ▼  SQS Trigger (batch=10)
-[ConsumerFunction]
-       │
-       ▼
-[checkinData DynamoDB]
-```
+![Architecture diagram](assets/architecture.png)
+
 
 ## Estructura del proyecto
 
