@@ -1,6 +1,6 @@
 # saa-producer-consumer-sqs
 
-Aplicación SAM - SimuLearn Lab  
+Aplicación SAM - 
 **Patrón:** Producer Lambda | SQS | Consumer Lambda | DynamoDB
 
 ## Arquitectura
